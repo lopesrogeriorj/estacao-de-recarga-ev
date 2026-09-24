@@ -5,7 +5,6 @@ import os
 
 ARQUIVO_DADOS = "historico_recargas.json"
 
-# Dicionário para tradução dos meses em português
 MESES_PT = {
     1: "Janeiro", 2: "Fevereiro", 3: "Março", 4: "Abril",
     5: "Maio", 6: "Junho", 7: "Julho", 8: "Agosto",
@@ -29,7 +28,6 @@ def salvar_dados(dados):
         print(f"Erro ao salvar dados: {e}")
 
 def filtrar_ultimo_ano(dados):
-    """Mantém apenas registros de no máximo 1 ano atrás (sobrescrevendo os mais antigos)."""
     agora = datetime.now()
     dados_filtrados = []
     for item in dados:
@@ -73,7 +71,6 @@ def main(page: ft.Page):
         value="Amarela (R$ 1,885 a cada 100 kWh)"
     )
 
-    # Componentes para os 3 últimos meses na tela principal
     txt_mes_atual_titulo = ft.Text("Mês Atual", size=14, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_700)
     txt_mes_atual_valor = ft.Text("R$ 0,00", size=20, weight=ft.FontWeight.BOLD)
     
@@ -96,7 +93,6 @@ def main(page: ft.Page):
         return kwh * (TARIFA_BASE_KWH + adicional)
 
     def obter_meses_alvo():
-        """Retorna os 3 meses atuais/anteriores baseados na data de hoje."""
         agora = datetime.now()
         meses = []
         for i in range(3):
@@ -106,11 +102,10 @@ def main(page: ft.Page):
                 m += 12
                 a -= 1
             meses.append((m, a))
-        return meses # [(mes_atual, ano), (mes_passado, ano), (mes_passado_2, ano)]
+        return meses
 
     def atualizar_paineis_e_totais():
         meses_alvo = obter_meses_alvo()
-        
         totais = {0: 0.0, 1: 0.0, 2: 0.0}
         
         for item in historico_recargas:
@@ -122,7 +117,6 @@ def main(page: ft.Page):
             except Exception:
                 continue
 
-        # Textos com nomes dos meses em Português
         m0, a0 = meses_alvo[0]
         m1, a1 = meses_alvo[1]
         m2, a2 = meses_alvo[2]
@@ -181,7 +175,6 @@ def main(page: ft.Page):
         
         historico_recargas.insert(0, novo_registro)
         historico_recargas = filtrar_ultimo_ano(historico_recargas)
-        
         salvar_dados(historico_recargas)
 
         carregar_historico_na_tela()
@@ -202,8 +195,8 @@ def main(page: ft.Page):
         dialog.open = True
         page.update()
 
-    btn_registrar = ft.Button(
-        content=ft.Text("Registrar Recarga e Calcular"),
+    btn_registrar = ft.ElevatedButton(
+        text="Registrar Recarga e Calcular",
         on_click=registrar_clique,
         width=400
     )
@@ -217,7 +210,6 @@ def main(page: ft.Page):
                 ft.Text("Gestão de Recarga - BYD Dolphin", size=18, weight=ft.FontWeight.BOLD),
                 ft.Divider(),
                 
-                # Card com os 3 últimos meses destacados
                 ft.Card(
                     content=ft.Container(
                         content=ft.Column([
@@ -226,7 +218,7 @@ def main(page: ft.Page):
                             ft.Divider(height=10),
                             ft.Row([
                                 ft.Column([txt_mes_anterior_1_titulo, txt_mes_anterior_1_valor], expand=1),
-                                ft.VerticalDivider(width=1),
+                                ft.VerticalDivider(),
                                 ft.Column([txt_mes_anterior_2_titulo, txt_mes_anterior_2_valor], expand=1),
                             ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
                         ], spacing=6),
@@ -254,5 +246,3 @@ def main(page: ft.Page):
             width=420
         )
     )
-
-ft.app(target=main)
